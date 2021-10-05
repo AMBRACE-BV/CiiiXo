@@ -8,32 +8,19 @@
  @brief Constructor
 */
 CiiiXo::CiiiXo(uint8_t i2c_address, uint8_t interrupt_pin, void (*interrupt_function)())
-    : _i2c_address { i2c_address }
-    , _i2c_connection { i2c_address }
-    , _using_interrupt { true }
-    , _interrupt_pin { interrupt_pin }
-    , _interrupt_function { interrupt_function }
-    , _output_port0 { 0x00 }
-    , _output_port1 { 0x00 }
-    , _output_port2 { 0x00 }
-    , _output_port3 { 0x00 }
-    , _output_port4 { 0x00 }
-{
-
+    : _i2c_address{i2c_address}, _i2c_connection{i2c_address}, _using_interrupt{true}, _interrupt_pin{interrupt_pin}, _interrupt_function{interrupt_function}, _output_port0{0x00}, _output_port1{0x00}, _output_port2{0x00}, _output_port3{0x00}, _output_port4{0x00} {
     Serial.println("Construction of PCA");
 }
 
 /**
  @brief Configure Device
 */
-void CiiiXo::configureInput()
-{
-
-    // TODO - GURU MEDITATION ERROR 
+void CiiiXo::configureInput() {
+    // TODO - GURU MEDITATION ERROR
 
     Serial.println("Configure input");
-    const uint8_t all_high[5] = { 0xff, 0xff, 0xff, 0xff, 0xff };
-    const uint8_t all_low[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
+    const uint8_t all_high[5] = {0xff, 0xff, 0xff, 0xff, 0xff};
+    const uint8_t all_low[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
     // Clear
     _i2c_connection.writeI2C(PCA9698_CONFIG_PORT0_AUTO_INCREMENT, all_high, 5);
 // _i2c_connection.writeI2C(PCA9698_CONFIG_PORT0, 0x00);
@@ -65,27 +52,30 @@ void CiiiXo::configureInput()
     _i2c_connection.writeI2C(PCA9698_MODE_REGISTER, 0x12);
 #ifdef DEBUG
     Serial.println("Mode register values: ");
-    serialPrintRegister(PCA9698_MODE_REGISTER, 1); //Should be 0x12
+    serialPrintRegister(PCA9698_MODE_REGISTER, 1);  //Should be 0x12
 #endif
 
     Serial.println("finished configuring input");
-
 }
 
 /**
  @brief Configure Device
 */
-void CiiiXo::configureOutput()
-{
+void CiiiXo::configureOutput() {
     Serial.println("Configure output");
-    // const uint8_t all_high[5] = { 0xff, 0xff, 0xff, 0xff, 0xff };
-    const uint8_t all_low[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
+    const uint8_t all_low[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
+    // Set the mode register so OEPOL is active high
+    _i2c_connection.writeI2C(PCA9698_MODE_REGISTER, 0b000000011);
     // Clear
     _i2c_connection.writeI2C(PCA9698_CONFIG_PORT0_AUTO_INCREMENT, all_low, 5);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT0, 0b11111111);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT1, 0b11111111);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT2, 0b11111111);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT3, 0b11111111);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT4, 0b11111111);
 }
 
-void CiiiXo::serialPrintRegister(uint8_t register_address, uint8_t number_of_bytes)
-{
+void CiiiXo::serialPrintRegister(uint8_t register_address, uint8_t number_of_bytes) {
     byte data[number_of_bytes];
     _i2c_connection.readI2C(register_address, number_of_bytes, data);
     for (int index = 0; index < number_of_bytes; index++) {
@@ -99,8 +89,7 @@ void CiiiXo::serialPrintRegister(uint8_t register_address, uint8_t number_of_byt
  @param [in] pin pinNo
  @param [in] output output
 */
-void CiiiXo::digitalWrite(uint8_t pin, uint8_t output)
-{
+void CiiiXo::digitalWrite(uint8_t pin, uint8_t output) {
     if (8 > pin && pin >= 0) {
         if (output == HIGH) {
             _output_port0 |= 1 << pin;
@@ -143,8 +132,7 @@ void CiiiXo::digitalWrite(uint8_t pin, uint8_t output)
  @brief read GPIO
  @param [in] pin pinNo
 */
-int CiiiXo::digitalRead(uint8_t pin)
-{
+int CiiiXo::digitalRead(uint8_t pin) {
     if (8 > pin && pin >= 0) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT0, sizeof(data), data);
@@ -191,8 +179,7 @@ int CiiiXo::digitalRead(uint8_t pin)
     return LOW;
 }
 
-void CiiiXo::digitalReadAll(uint8_t data[40])
-{
+void CiiiXo::digitalReadAll(uint8_t data[40]) {
     uint8_t data_in_bytes[5];
 
     _i2c_connection.readI2C(PCA9698_INPUT_PORT0_AUTO_INCREMENT, sizeof(data_in_bytes), data_in_bytes);
@@ -214,8 +201,7 @@ void CiiiXo::digitalReadAll(uint8_t data[40])
 /**
  * wake up i2c controller
  */
-void CiiiXo::begin(bool input)
-{
+void CiiiXo::begin(bool input) {
     if (input) {
         configureInput();
         // TODO - check if interrupt occurs twice?

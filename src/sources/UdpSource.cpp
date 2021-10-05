@@ -1,19 +1,20 @@
-#include <Arduino.h>
-#include <ETH.h>
-#include <ArduinoJson.h>
 #include "UdpSource.h"
-// #include "IOManager.h"
 
-void UdpSource::setup() {
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <ETH.h>
+
+#include "IOManager.h"
+
+void UdpSource::setup(){
     // Nothing to do here
 };
 
 void UdpSource::loop() {
-    if (! udpClient.listen(1235)) {
+    if (!udpClient.listen(1235)) {
         return;
     }
     udpClient.onPacket([](AsyncUDPPacket packet) {
-
         Serial.print("received packet from ");
         Serial.println(packet.remoteIP());
         Serial.print("message: ");
@@ -47,7 +48,7 @@ void UdpSource::loop() {
 
             // setPin(pin, value);
 
-            // TODO - digitalwrite pin 
+            // TODO - digitalwrite pin
             // need to extend PCA9698 class -> add function with args pin, value, duration (optional))
             // Function will then determine the ADDRESS -> all address logic hidden from other components!
         } else {
@@ -55,8 +56,10 @@ void UdpSource::loop() {
             Serial.print(pin);
             Serial.print(" to value ");
             Serial.print(value);
+
+            setPin(pin, value);
+
             // TODO - see above, non-empty duration
         }
     });
-
 }
