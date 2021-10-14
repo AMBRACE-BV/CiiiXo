@@ -59,12 +59,13 @@ void setPin(uint8_t pin, uint8_t value) {
     uint8_t module = pin / MODULE_SIZE;
     uint8_t module_pin = pin % MODULE_SIZE;
 
-    // TODO - verify if module exists before setting pin
-    output_modules[module]->digitalWrite(module_pin, value);
-
-    for (int i = 0; i < 40; i++){
-        output_modules[0]->digitalWrite(i, 0);
+    if (module >= nr_outputs) {
+        Serial.print("trying to set pin on non-existing module: ");
+        Serial.println(module);
+        return;
     }
+
+    output_modules[module]->digitalWrite(module_pin, value);
 }
 
 /* Set pin value for a defined duration in ms*/
@@ -80,21 +81,23 @@ uint8_t readPin(uint8_t pin, IOType io_type) {
     uint8_t module = pin / MODULE_SIZE;
     uint8_t module_pin = pin % MODULE_SIZE;
 
-    if (module >= MAX_INPUT_MODULES) {
-        Serial.print("trying to read pin on a non-existing module: ");
-        Serial.println(module);
-        return 0;
-    }
-
     // Predefine value
     uint8_t value;
 
     if (io_type == INPUT_MODULE) {
-        // TODO - verify if module exists before reading pin
+        if (module >= nr_inputs) {
+            Serial.print("trying to read pin on a non-existing input module: ");
+            Serial.println(module);
+            return 0;
+        }
         value = input_modules[module]->digitalRead(module_pin);
         return value;
     } else {
-        // TODO - verify if module exists before reading pin
+        if (module >= nr_outputs) {
+            Serial.print("trying to read pin on a non-existing output module: ");
+            Serial.println(module);
+            return 0;
+        }
         value = output_modules[module]->digitalRead(module_pin);
         return value;
     }

@@ -68,11 +68,18 @@ void CiiiXo::configureOutput() {
     _i2c_connection.writeI2C(PCA9698_MODE_REGISTER, 0b000000011);
     // Clear
     _i2c_connection.writeI2C(PCA9698_CONFIG_PORT0_AUTO_INCREMENT, all_low, 5);
-    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT0, 0b11111111);
-    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT1, 0b11111111);
-    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT2, 0b11111111);
-    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT3, 0b11111111);
-    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT4, 0b11111111);
+
+    _output_port0 = 0;
+    _output_port1 = 0;
+    _output_port2 = 0;
+    _output_port3 = 0;
+    _output_port4 = 0;
+    
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT0, _output_port0);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT1, _output_port1);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT2, _output_port2);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT3, _output_port3);
+    _i2c_connection.writeI2C(PCA9698_OUTPUT_PORT4, _output_port4);
 }
 
 void CiiiXo::serialPrintRegister(uint8_t register_address, uint8_t number_of_bytes) {
