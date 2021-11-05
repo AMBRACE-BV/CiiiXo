@@ -32,6 +32,12 @@ QueueHandle_t job_queue;
 
 UdpSource udpSource;
 
+struct PinChange{
+    uint8_t pin;
+    uint8_t value;
+};
+
+
 void printHighPins() {
     uint8_t data[getNumberOfInputs() * MODULE_SIZE];
     readAll(data);
@@ -63,15 +69,21 @@ void mainTask(void* parameters) {
             flashLed(2, CRGB::Green, 50);
             Serial.println("io change!");
 
-            uint8_t data[getNumberOfInputs() * MODULE_SIZE];
+            int8_t data[getNumberOfInputs() * MODULE_SIZE];
             ioChanges(data);
             for (uint8_t i = 0; i < getNumberOfInputs() * MODULE_SIZE; i++) {
                 // data == -1 --> current state = 0; change == 1 --> current state = 1
                 if (data[i] != 0) {
-                    xQueueSend(job_queue, &i, portMAX_DELAY);
+                    PinChange change;
+                    change.pin = i;
+                    change.value = (data[i] + 1) / 2;
+
+                    xQueueSend(job_queue, &change, portMAX_DELAY);
 #ifdef DEBUG
                     Serial.print("Change detected on pin ");
-                    Serial.println(i);
+                    Serial.print(i);
+                    Serial.print(" new value ");
+                    Serial.println(change.value);
 #endif
                 }
             }
@@ -86,9 +98,9 @@ void jobTask(void* parameters) {
         udpSource.loop();
 
         // Poll from queue to fetch interrupt pins
-        uint8_t pin_index;
-        if (xQueueReceive(job_queue, &pin_index, 20)) {
-            sendInputsData(pin_index, readPin(pin_index, INPUT_MODULE));
+        PinChange change;
+        if (xQueueReceive(job_queue, &change, 20)) {            
+            sendInputsData(change.pin, change.value);
         }
 
         EVERY_N_MILLISECONDS(500) {
@@ -103,8 +115,7 @@ void jobTask(void* parameters) {
 
 // Split tasks on the two cores - note: esp32 by default uses core 1
 void setupTasks() {
-    job_queue = xQueueCreate(40, sizeof(uint8_t));
-
+    job_queue = xQueueCreate(40, sizeof(struct PinChange*));
     xTaskCreatePinnedToCore(
         jobTask,   /* Task function. */
         "Job",     /* name of task. */
