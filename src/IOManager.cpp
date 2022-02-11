@@ -124,10 +124,11 @@ bool ioChangeDetected() {
 }
 
 /* Fills data with -1, 0 or 1 ; indicating the change compared to the previous state*/
-void ioChanges(uint8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
-    readAll(data, INPUT_MODULE);
+void ioChanges(int8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
+    uint8_t temp[MODULE_SIZE * MAX_INPUT_MODULES];
+    readAll(temp, INPUT_MODULE);
     for (uint8_t i = 0; i < MAX_INPUT_MODULES * MODULE_SIZE; i++) {
-        data[i] = data[i] - pin_history[i];
+        data[i] = temp[i] - pin_history[i];
         pin_history[i] = pin_history[i] + data[i];  // Update history
     }
 }

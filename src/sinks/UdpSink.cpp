@@ -40,6 +40,7 @@ void UdpSink::sendMessage(String message) {
 void UdpSink::sendInputsData(uint8_t pin_index, uint8_t pin_value){
     // NOTE - inverted pin value !
     String msg = "pin " + String(pin_index) + " - " + (1 - pin_value);
+    Serial.println(msg);
     this->sendMessage(msg);
 
 }
