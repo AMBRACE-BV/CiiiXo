@@ -7,6 +7,7 @@
 #include <FreeRTOS.h>
 
 #define MQTT_MAX_PACKET_SIZE 256
+#define DEBUG
 
 #include "HttpServer.h"
 #include "IOManager.h"
@@ -14,12 +15,12 @@
 #include "Network.h"
 #include "sinks/Sink.h"
 #include "sources/UdpSource.h"
+#include "sources/MqttSource.h"
 
 // #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
 #define ETH_PHY_POWER 12
 #define CONFIG_ESP_INT_WDT_TIMEOUT_MS 500
 
-#define DEBUG
 
 /*---Prototypes----*/
 // void callback_MQTT(char* topic, byte* payload, unsigned int length);
@@ -31,6 +32,7 @@ void printHighPins();
 QueueHandle_t job_queue;
 
 UdpSource udpSource;
+MqttSource mqttSource;
 
 struct PinChange{
     uint8_t pin;
@@ -79,12 +81,12 @@ void mainTask(void* parameters) {
                     change.value = (data[i] + 1) / 2;
 
                     xQueueSend(job_queue, &change, portMAX_DELAY);
-#ifdef DEBUG
+                    #ifdef DEBUG
                     Serial.print("Change detected on pin ");
                     Serial.print(i);
                     Serial.print(" new value ");
                     Serial.println(change.value);
-#endif
+                    #endif
                 }
             }
         }
@@ -179,6 +181,8 @@ void setup() {
     // setupMqtt();
     // Launch UDP publisher
     setupUdp();
+    // Launch mqtt source
+    mqttSource.setup();
     // Split tasks on dual core
     setupTasks();
 }

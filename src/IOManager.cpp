@@ -56,6 +56,13 @@ void beginIO() {
 
 /* Set pin value*/
 void setPin(uint8_t pin, uint8_t value) {
+    #ifdef DEBUG
+    Serial.print("setting pin ");
+    Serial.print(pin);
+    Serial.print(" to value ");
+    Serial.print(value);
+    #endif
+
     uint8_t module = pin / MODULE_SIZE;
     uint8_t module_pin = pin % MODULE_SIZE;
 
@@ -70,7 +77,17 @@ void setPin(uint8_t pin, uint8_t value) {
 
 /* Set pin value for a defined duration in ms*/
 void setPin(uint8_t pin, uint8_t value, uint32_t duration) {
-    // TODO
+    #ifdef DEBUG
+    Serial.print("setting pin ");
+    Serial.print(pin);
+    Serial.print(" to value ");
+    Serial.print(value);
+    Serial.print(" for ");
+    Serial.print(duration);
+    Serial.println(" ms");
+    #endif DEBUG
+    // TODO ! 
+    Serial.println("DURATION NOT IMPLEMENTED YET - ignoring message!");
 }
 
 uint8_t readPin(uint8_t pin) {

@@ -6,13 +6,6 @@
 /*--------------------------JSON--------------------------*/
 StaticJsonDocument<256> json_doc;
 
-/*--------------------------MQTT--------------------------*/
-// const char* mqtt_server = "5.196.95.208";
-// const char* mqtt_server = "172.16.128.166";
-// const char* mqtt_server = "192.168.1.142";
-// WiFiClient espClient;
-// PubSubClient clientMQTT(espClient);
-
 
 void MqttSink::loop() {
     if (!clientMQTT.connected()) {
@@ -23,12 +16,10 @@ void MqttSink::loop() {
 }
 
 void  MqttSink::sendMessage(String message) {
-    String topic = "ciiixo/io/message";
-
     char buffer[message.length() - 1];
     strcpy(buffer, message.c_str());
 
-    if (!clientMQTT.publish(topic.c_str(), buffer, false)) {
+    if (!clientMQTT.publish(topic, buffer, false)) {
         Serial.println("Error sending message");
     }
 }
@@ -42,7 +33,7 @@ void MqttSink::sendInputsData(uint8_t pin_index, uint8_t pin_value)
     char buffer[4096];
     serializeJson(json_doc, buffer);
 
-    String topic = "ciiixo/io/" + String(pin_index);
+    String topic = topicTemplate + String(pin_index);
 
     if (!clientMQTT.publish(topic.c_str(), buffer, false)) {
         Serial.println("Error sending message");
@@ -54,7 +45,7 @@ void MqttSink::reconnect()
     while (!clientMQTT.connected()) {
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
-        if (clientMQTT.connect("Ciiixo_client", "Lynx", "LynX1234")) {
+        if (clientMQTT.connect("Ciiixo_client", username, password)) {
             Serial.println("connected");
         } else {
             Serial.print("MQTT connect failed, rc=");
@@ -66,17 +57,17 @@ void MqttSink::reconnect()
 
 void MqttSink::setup()
 {
-    Serial.println("Init MQTT");
-    clientMQTT.setServer(mqtt_server, 1883);
-    Serial.println(mqtt_server);
+    Serial.print("Init MQTT-sink to ");
+    Serial.println(server);
+
+    clientMQTT.setServer(server, 1883);
     clientMQTT.setCallback(callback);
 }
 
 void MqttSink::callback(char* topic, byte* payload, unsigned int length)
 {
-    Serial.print("Message arrived [");
+    Serial.print("Mqtt-sink received message from topic: ");
     Serial.print(topic);
-    Serial.print("] ");
     for (int i = 0; i < length; i++) {
         Serial.print((char)payload[i]);
     }
@@ -84,5 +75,5 @@ void MqttSink::callback(char* topic, byte* payload, unsigned int length)
 }
 
 void MqttSink::setServer(char* server) {
-    mqtt_server = server;
+    server = server;
 }

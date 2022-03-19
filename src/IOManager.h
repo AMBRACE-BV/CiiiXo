@@ -22,6 +22,7 @@ enum IOType { INPUT_MODULE,
 void configureIO();
 void beginIO();
 void setPin(uint8_t pin, uint8_t value);
+void setPin(uint8_t pin, uint8_t value, uint32_t duration);
 uint8_t readPin(int pin);
 uint8_t readPin(uint8_t pin, IOType io_type);  // Ability to read output pins
 void readAll(uint8_t data[MODULE_SIZE * INPUT_MODULE]);

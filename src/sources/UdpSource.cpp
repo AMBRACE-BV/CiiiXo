@@ -15,12 +15,13 @@ void UdpSource::loop() {
         return;
     }
     udpClient.onPacket([](AsyncUDPPacket packet) {
+        #ifdef DEBUG
         Serial.print("received packet from ");
         Serial.println(packet.remoteIP());
         Serial.print("message: ");
         Serial.write(packet.data(), packet.length());
         Serial.println();
-
+        #endif
         StaticJsonDocument<200> doc;
         DeserializationError error = deserializeJson(doc, packet.data());
         if (error) {
@@ -36,30 +37,11 @@ void UdpSource::loop() {
             Serial.println("missing json keys - expecting pin and value");
         };
 
-        uint duration = doc["duration"].as<uint>();
+        uint32_t duration = doc["duration"].as<uint32_t>();
         if (duration) {
-            Serial.print("setting pin ");
-            Serial.print(pin);
-            Serial.print(" to value ");
-            Serial.print(value);
-            Serial.print(" for ");
-            Serial.print(duration);
-            Serial.println(" ms");
-
-            // setPin(pin, value);
-
-            // TODO - digitalwrite pin
-            // need to extend PCA9698 class -> add function with args pin, value, duration (optional))
-            // Function will then determine the ADDRESS -> all address logic hidden from other components!
+            setPin(pin, value, duration);
         } else {
-            Serial.print("setting pin ");
-            Serial.print(pin);
-            Serial.print(" to value ");
-            Serial.print(value);
-
             setPin(pin, value);
-
-            // TODO - see above, non-empty duration
         }
     });
 }
