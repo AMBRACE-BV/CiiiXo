@@ -1,17 +1,19 @@
-#include "UdpSource.h"
+#include "defines.h"
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ETH.h>
 
+#include "UdpSource.h"
 #include "IOManager.h"
+
 
 void UdpSource::setup(){
     // Nothing to do here
 };
 
 void UdpSource::loop() {
-    if (!udpClient.listen(1235)) {
+    if (!udpClient.listen(this->port)) {
         return;
     }
     udpClient.onPacket([](AsyncUDPPacket packet) {
@@ -44,4 +46,8 @@ void UdpSource::loop() {
             setPin(pin, value);
         }
     });
+}
+
+void UdpSource::setPort(int port) {
+    this->port = port;
 }

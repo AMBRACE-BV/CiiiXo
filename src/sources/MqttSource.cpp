@@ -1,20 +1,29 @@
-#include "MqttSource.h"
+#include "defines.h"
 #include <ArduinoJson.h>
+
+#include "MqttSource.h"
 #include "IOManager.h"
 
 #define MQTT_MAX_PACKET_SIZE 256
 
-/*--------------------------JSON--------------------------*/
-StaticJsonDocument<256> json_doc;
+
+void MqttSource::setServer(char* server) {
+    server = server;
+}
+
+void MqttSource::setCredentials(char* username, char* password) {
+    username = username;
+    password = password;
+}
 
 void MqttSource::loop() {
 
-    if (server == "") {
+    if (this->enabled) {
         return;
     }
 
     if (!clientMQTT.connected()) {
-        Serial.println("mqtt not connected! reconnecting...");
+        Serial.println("MQTT not connected! reconnecting...");
         reconnect();
     }
     clientMQTT.loop();
@@ -39,7 +48,7 @@ void MqttSource::reconnect()
 
 void MqttSource::setup()
 {
-    Serial.print("Init mqtt-source to ");
+    Serial.print("Init MQTT source to ");
     Serial.println(server);
     clientMQTT.setServer(server, 1883);
     clientMQTT.setCallback(callback);
@@ -56,22 +65,29 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
     Serial.println();
     #endif
 
+
     StaticJsonDocument<200> doc;
     DeserializationError error = deserializeJson(doc, payload);
     if (error) {
-        Serial.print("deserialization failed: ");
+        Serial.print("Deserialization failed: ");
         Serial.println(error.c_str());
         return;
     }
 
-    uint8_t pin = doc["pin"].as<uint8_t>();
+    uint8_t pin = getTopicWildcard(String(topic), '/', 2).toInt();
+    // uint8_t pin = doc["pin"].as<uint8_t>();
     uint8_t value = doc["value"].as<uint8_t>();
+    uint32_t duration = doc["duration"].as<uint32_t>();
 
-    if (!pin || !value) {
-        Serial.println("missing json keys - expecting pin and value");
+    if (!pin) {
+        Serial.println("Failed to extract pin from topic");
+        return;
+    };
+    if (!value) {
+        Serial.println("Missing json key - expected value");
+        return;
     };
 
-    uint32_t duration = doc["duration"].as<uint32_t>();
     if (duration) {
         setPin(pin, value, duration);
     } else {
@@ -79,6 +95,16 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
     }
 }
 
-void MqttSource::setServer(char* server) {
-    server = server;
+String getTopicWildcard(String topic, char separator, int index) {
+    int startIndex = topic.indexOf(separator) + 1;
+    if (startIndex == -1) {
+        // separator not found - return full topic
+        return topic;
+    }
+
+    int endIndex = topic.indexOf(separator) - 1;
+    endIndex = endIndex > 0 ? endIndex : topic.length(); 
+
+    return topic.substring(startIndex, endIndex);
+
 }
