@@ -151,7 +151,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (16 > pin && pin >= 8) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT1, sizeof(data), data);
-        if ((data[0] & (1 << pin - 8)) == (1 << pin - 8)) {
+        if ((data[0] & (1 << (pin - 8))) == (1 << (pin - 8))) {
             return HIGH;
         } else {
             return LOW;
@@ -160,7 +160,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (24 > pin && pin >= 16) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT2, sizeof(data), data);
-        if ((data[0] & (1 << pin - 16)) == (1 << pin - 16)) {
+        if ((data[0] & (1 << (pin - 16))) == (1 << (pin - 16))) {
             return HIGH;
         } else {
             return LOW;
@@ -168,7 +168,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (32 > pin && pin >= 24) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT3, sizeof(data), data);
-        if ((data[0] & (1 << pin - 24)) == (1 << pin - 24)) {
+        if ((data[0] & (1 << (pin - 24))) == (1 << (pin - 24))) {
             return HIGH;
         } else {
             return LOW;
@@ -176,7 +176,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (40 > pin && pin >= 32) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT4, sizeof(data), data);
-        if ((data[0] & (1 << pin - 32)) == (1 << pin - 32)) {
+        if ((data[0] & (1 << (pin - 32))) == (1 << (pin - 32))) {
             return HIGH;
         } else {
             return LOW;

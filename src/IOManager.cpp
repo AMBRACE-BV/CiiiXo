@@ -1,8 +1,10 @@
-#include "IOManager.h"
+#include "defines.h"
 
 #include <Arduino.h>
-//#include <CiiiXo.h>
 #include <Wire.h>
+#include "IOManager.h"
+
+
 using namespace std;
 
 uint8_t nr_inputs, nr_outputs = 0;
@@ -180,4 +182,25 @@ uint8_t getNumberOfInputs() {
 }
 uint8_t getNumberOfOutputs() {
     return nr_outputs;
+}
+
+void printHighPins() {
+    uint8_t data[getNumberOfInputs() * MODULE_SIZE];
+    readAll(data);
+
+    Serial.println("Active on:");
+    Serial.println(" | 0 1 2 3 4 5 6 7 8 9");
+    Serial.println("----------------------");
+    for (int indexy = 0; indexy < getNumberOfInputs() * MODULE_SIZE / 10; indexy++) {
+        Serial.print(indexy);
+        Serial.print("|");
+        for (int index = 0; index < 10; index++) {
+            if (data[(10 * indexy) + index] == LOW) {
+                Serial.print("0 ");
+            } else {
+                Serial.print("1 ");
+            }
+        }
+        Serial.println();
+    }
 }
