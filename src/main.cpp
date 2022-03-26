@@ -177,12 +177,9 @@ void setup() {
     setupIOExpanders();
     // Launching webservice
     setupWebservice();
-    // Launching MQTT publisher
-    // setupMqtt();
-    // Launch UDP publisher
-    setupUdp();
     // Launch mqtt source
     mqttSource.setup();
+    setupSinks();
     // Split tasks on dual core
     setupTasks();
 }

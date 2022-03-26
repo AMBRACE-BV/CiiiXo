@@ -1,3 +1,5 @@
+#include "defines.h"
+
 #include <Arduino.h>
 #include <ETH.h>
 #include "UdpSink.h"

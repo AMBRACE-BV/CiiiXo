@@ -1,15 +1,25 @@
-#include "MqttSink.h"
+#include "defines.h"
+
 #include <ArduinoJson.h>
+#include "MqttSink.h"
 
 #define MQTT_MAX_PACKET_SIZE 256
 
 /*--------------------------JSON--------------------------*/
 StaticJsonDocument<256> json_doc;
 
+void MqttSink::setup()
+{
+    Serial.print("Init MQTT sink to ");
+    Serial.println(server);
+
+    clientMQTT.setServer(server, 1883);
+    clientMQTT.setCallback(callback);
+}
 
 void MqttSink::loop() {
     if (!clientMQTT.connected()) {
-        Serial.println("mqtt not connected! reconnecting...");
+        Serial.println("MQTT sink not connected! reconnecting...");
         reconnect();
     }
     clientMQTT.loop();
@@ -55,18 +65,9 @@ void MqttSink::reconnect()
     }
 }
 
-void MqttSink::setup()
-{
-    Serial.print("Init MQTT-sink to ");
-    Serial.println(server);
-
-    clientMQTT.setServer(server, 1883);
-    clientMQTT.setCallback(callback);
-}
-
 void MqttSink::callback(char* topic, byte* payload, unsigned int length)
 {
-    Serial.print("Mqtt-sink received message from topic: ");
+    Serial.print("MQTT sink received message from topic: ");
     Serial.print(topic);
     for (int i = 0; i < length; i++) {
         Serial.print((char)payload[i]);
