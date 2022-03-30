@@ -1,9 +1,8 @@
-#include "defines.h"
-
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ETH.h>
 
+#include "defines.h"
 #include "UdpSource.h"
 #include "IOManager.h"
 
@@ -17,7 +16,7 @@ void UdpSource::loop() {
         return;
     }
     udpClient.onPacket([](AsyncUDPPacket packet) {
-        #ifdef DEBUG
+        #ifdef LOCAL_DEBUG
         Serial.print("received packet from ");
         Serial.println(packet.remoteIP());
         Serial.print("message: ");

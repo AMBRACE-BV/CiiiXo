@@ -1,6 +1,6 @@
-#include "defines.h"
-
 #include <Arduino.h>
+
+#include "defines.h"
 #include "Sink.h"
 #include "UdpSink.h"
 #include "MqttSink.h"

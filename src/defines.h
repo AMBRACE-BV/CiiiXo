@@ -1,4 +1,4 @@
-// #define DEBUG
+#define LOCAL_DEBUG
 // Sinks
 #define UDP_SINK
 #define MQTT_SINK

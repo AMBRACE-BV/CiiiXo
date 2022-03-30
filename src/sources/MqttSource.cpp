@@ -1,6 +1,6 @@
-#include "defines.h"
 #include <ArduinoJson.h>
 
+#include "defines.h"
 #include "MqttSource.h"
 #include "IOManager.h"
 
@@ -17,11 +17,6 @@ void MqttSource::setCredentials(char* username, char* password) {
 }
 
 void MqttSource::loop() {
-
-    if (this->enabled) {
-        return;
-    }
-
     if (!clientMQTT.connected()) {
         Serial.println("MQTT not connected! reconnecting...");
         reconnect();
@@ -34,7 +29,7 @@ void MqttSource::reconnect()
     while (!clientMQTT.connected()) {
         Serial.print("Attempting MQTT connection for the mqtt-source...");
         // Attempt to connect
-        if (clientMQTT.connect("Ciiixo_client", username, password)) {
+        if (clientMQTT.connect("Ciiixo_client_source", username, password)) {
             Serial.print("Connected! Subscribing to mqtt topic ");
             Serial.println(topic);
             clientMQTT.subscribe(topic);
@@ -56,7 +51,7 @@ void MqttSource::setup()
 
 void MqttSource::callback(char* topic, byte* payload, unsigned int length)
 {
-    #ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     Serial.print("Mqtt-source received message from topic: ");
     Serial.print(topic);
     for (int i = 0; i < length; i++) {
@@ -74,19 +69,22 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
         return;
     }
 
-    uint8_t pin = getTopicWildcard(String(topic), '/', 2).toInt();
-    // uint8_t pin = doc["pin"].as<uint8_t>();
-    uint8_t value = doc["value"].as<uint8_t>();
+    String pinStr = getTopicWildcard(String(topic), '/', 2);
+    String valueStr = doc["value"];
     uint32_t duration = doc["duration"].as<uint32_t>();
 
-    if (!pin) {
+    if (!pinStr.length()) {
         Serial.println("Failed to extract pin from topic");
         return;
     };
-    if (!value) {
+    if (!valueStr.length()) {
         Serial.println("Missing json key - expected value");
         return;
     };
+
+    int pin = pinStr.toInt();
+    uint8_t value = (uint8_t) valueStr.toInt();
+
 
     if (duration) {
         setPin(pin, value, duration);
@@ -96,15 +94,28 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
 }
 
 String getTopicWildcard(String topic, char separator, int index) {
-    int startIndex = topic.indexOf(separator) + 1;
+    // Given the mqtt topic, returns the wildcard found at 'index', starting from 0 for the first part of the topic.
+    int startIndex = index == 0 ? 0 : -1;
+    int endIndex = -1;
+    int indexCount = 0;
+    for (int i = 0; i < topic.length(); i++) {
+        if (topic[i] != separator) {
+            continue;
+        } 
+        indexCount += 1;
+        if (indexCount == index && startIndex == -1) {
+            startIndex = i;
+        }
+        if (indexCount == index + 1 && endIndex == -1) {
+            endIndex = i;
+            break;
+        }
+    }
     if (startIndex == -1) {
         // separator not found - return full topic
         return topic;
     }
 
-    int endIndex = topic.indexOf(separator) - 1;
     endIndex = endIndex > 0 ? endIndex : topic.length(); 
-
-    return topic.substring(startIndex, endIndex);
-
+    return topic.substring(startIndex + 1, endIndex);
 }

@@ -18,7 +18,7 @@ class Sink {
         virtual void sendInputsData(uint8_t, uint8_t){Serial.print("base inputs");};
 
         void setEnabled(bool enabled) {
-            enabled = enabled;
+            this->enabled = enabled;
         }
         bool isEnabled() {
             return enabled;

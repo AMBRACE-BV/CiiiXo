@@ -1,7 +1,8 @@
+using namespace std;
+
 #include "defines.h"
 #include "UdpSource.h"
 #include "MqttSource.h"
-using namespace std;
 
 MqttSource mqtt_source;
 UdpSource udp_source;

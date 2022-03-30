@@ -1,4 +1,3 @@
-#include "defines.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
@@ -8,8 +7,8 @@
 #include <FreeRTOS.h>
 
 #define MQTT_MAX_PACKET_SIZE 256
-#define DEBUG
 
+#include "defines.h"
 #include "HttpServer.h"
 #include "IOManager.h"
 #include "Leds.h"
@@ -55,7 +54,7 @@ void mainTask(void* parameters) {
                 change.value = (data[i] + 1) / 2;
                 xQueueSend(job_queue, &change, portMAX_DELAY);
 
-                #ifdef DEBUG
+                #ifdef LOCAL_DEBUG
                 Serial.print("Change detected on pin ");
                 Serial.print(i);
                 Serial.print(" new value ");
@@ -131,7 +130,7 @@ void setupIOExpanders() {
     configureIO();
     beginIO();
 
-    #ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     Serial.println("PCA should be interrupting");
     Serial.println("initial IO: ");
     printHighPins();
@@ -139,7 +138,7 @@ void setupIOExpanders() {
 }
 
 void setup() {
-    #ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     setupDebug();
     #endif
     // Initialize all components

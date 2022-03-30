@@ -24,7 +24,7 @@ void setLed(int index, const struct CRGB& color) {
 void setupLeds()
 {
     FastLED.addLeds<NEOPIXEL, PIN_LED_DATA>(leds, NUM_LEDS);
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     Serial.println("Added the leds");
 #endif
 }

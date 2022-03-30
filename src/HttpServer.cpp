@@ -7,14 +7,20 @@
 WebServer server(80);
 
 // HTTP handlers
-void handleRoot()
-{
+void handleRoot() {
     server.send(200, "text/plain", "Hello from CiiiXo!\n");
 }
 
-void handleNotFound()
-{
+void handleNotFound() {
     server.send(404, "text/plain", String("No ") + server.uri() + " here!\n");
+}
+
+void handleSourceConfig() {
+    server.send(200, "text/plain", "Source config - TODO!");
+}
+
+void handleSinkConfig() {
+    server.send(200, "text/plain", "Sink config - TODO!");
 }
 
 void setupWebservice()
@@ -23,6 +29,8 @@ void setupWebservice()
 
     // Bind HTTP handler
     server.on("/", handleRoot);
+    server.on("/config/sources", handleSourceConfig);
+    server.on("/config/sinks", handleSinkConfig);
     server.onNotFound(handleNotFound);
 
     // Start the Ethernet web server

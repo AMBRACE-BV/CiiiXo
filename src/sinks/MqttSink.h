@@ -14,7 +14,7 @@ class MqttSink: public Sink {
         void sendInputsData(uint8_t, uint8_t);
         void setServer(char*);
     protected:
-        char* server = (char*) "192.168.1.142";      
+        char* server = (char*) "172.16.129.10";      
         char* username = (char*) "";      
         char* password = (char*) "";      
         char* topic = (char*) "ciiixo/io/message";

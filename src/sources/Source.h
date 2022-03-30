@@ -13,10 +13,10 @@ class Source {
         virtual void setup(){Serial.print("base source setup");};
         virtual void loop(){Serial.print("base source loop");};
         void setEnabled(bool enabled) {
-            enabled = enabled;
+            this->enabled = enabled;
         }
         bool isEnabled() {
-            return enabled;
+            return this->enabled;
         }
 
         bool enabled = false;

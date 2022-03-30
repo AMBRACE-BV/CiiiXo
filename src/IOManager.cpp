@@ -1,7 +1,7 @@
-#include "defines.h"
-
 #include <Arduino.h>
 #include <Wire.h>
+
+#include "defines.h"
 #include "IOManager.h"
 
 
@@ -58,7 +58,7 @@ void beginIO() {
 
 /* Set pin value*/
 void setPin(uint8_t pin, uint8_t value) {
-    #ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     Serial.print("setting pin ");
     Serial.print(pin);
     Serial.print(" to value ");
@@ -79,7 +79,7 @@ void setPin(uint8_t pin, uint8_t value) {
 
 /* Set pin value for a defined duration in ms*/
 void setPin(uint8_t pin, uint8_t value, uint32_t duration) {
-    #ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     Serial.print("setting pin ");
     Serial.print(pin);
     Serial.print(" to value ");

@@ -55,7 +55,7 @@ void MqttSink::reconnect()
     while (!clientMQTT.connected()) {
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
-        if (clientMQTT.connect("Ciiixo_client", username, password)) {
+        if (clientMQTT.connect("Ciiixo_client_sink", username, password)) {
             Serial.println("connected");
         } else {
             Serial.print("MQTT connect failed, rc=");
