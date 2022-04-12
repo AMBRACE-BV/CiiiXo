@@ -26,7 +26,7 @@ CIIIxO is a device that functions as in input and output controller in extension
 ## Compatibility
 - [x] LOXONE (UDP)
 - [x] MQTT
-- [w] Node-RED
+- [x] Node-RED
 - [x] Home Assistent
 - [ ] Standalone
 
