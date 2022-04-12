@@ -16,6 +16,7 @@ CIIIxO is a device that functions as in input and output controller in extension
 - 4 on-board (open drain) outputs
 - Ethernet 10/100 Base-T/TX
 - WiFi (2.4GHz band) Access Point for configuration
+- Self hosted webiste for configuration
 - 1-Wire connection
 - On board micro-USB connection for software updates and debugging
 - OTA updates
@@ -23,9 +24,9 @@ CIIIxO is a device that functions as in input and output controller in extension
 - 3 RGB status LEDs
 
 ## Compatibility
-- [x] LOXONE
+- [x] LOXONE (UDP)
 - [x] MQTT
-- [ ] Node-RED
+- [w] Node-RED
 - [x] Home Assistent
 - [ ] Standalone
 
