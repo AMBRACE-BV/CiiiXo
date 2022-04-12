@@ -8,11 +8,12 @@ CIIIxO is a device that functions as in input and output controller in extension
 
 ## Features
 - 24V DC power supply
+- Low power consumption
 - DIN rail casing
 - 80 digital inputs – optically isolated, 12-24V DC (Based on 24 V DC PLC digital input types as defined by IEC 61131-2), expandable with:
-  - 120 inputs optically isolated, 12-24V DC on extension module
-  - 80 outputs (solid state / relay) on extension module
-- 4 on-board open drain outputs
+  - 80 inputs optically isolated, 12-24V DC on extension module
+  - 80 outputs (open drain) on extension module
+- 4 on-board (open drain) outputs
 - Ethernet 10/100 Base-T/TX
 - WiFi (2.4GHz band) Access Point for configuration
 - 1-Wire connection
@@ -25,7 +26,7 @@ CIIIxO is a device that functions as in input and output controller in extension
 - [x] LOXONE
 - [x] MQTT
 - [ ] Node-RED
-- [ ] Home Assistent
+- [x] Home Assistent
 - [ ] Standalone
 
 ## Quick start guide and documentation
