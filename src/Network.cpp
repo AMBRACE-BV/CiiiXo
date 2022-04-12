@@ -8,7 +8,6 @@
 #include <FastLED.h>
 #include <Ethernet.h>
 
-
 #include "Leds.h"
 
 /******************FIXED IP ADDRESS********/

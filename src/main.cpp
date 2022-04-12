@@ -8,56 +8,32 @@
 
 #define MQTT_MAX_PACKET_SIZE 256
 
+#include "defines.h"
 #include "HttpServer.h"
 #include "IOManager.h"
 #include "Leds.h"
 #include "Network.h"
 #include "sinks/Sink.h"
 #include "sources/UdpSource.h"
+#include "sources/MqttSource.h"
 
 // #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
 #define ETH_PHY_POWER 12
 #define CONFIG_ESP_INT_WDT_TIMEOUT_MS 500
 
-#define DEBUG
 
 /*---Prototypes----*/
 // void callback_MQTT(char* topic, byte* payload, unsigned int length);
 /// void IRAM_ATTR handleInterrupt();
 void handleInterrupt();
-void printHighPins();
 
 // void IRAM_ATTR handleInterrupt();
 QueueHandle_t job_queue;
-
-UdpSource udpSource;
 
 struct PinChange{
     uint8_t pin;
     uint8_t value;
 };
-
-
-void printHighPins() {
-    uint8_t data[getNumberOfInputs() * MODULE_SIZE];
-    readAll(data);
-
-    Serial.println("Active on:");
-    Serial.println(" | 0 1 2 3 4 5 6 7 8 9");
-    Serial.println("----------------------");
-    for (int indexy = 0; indexy < getNumberOfInputs() * MODULE_SIZE / 10; indexy++) {
-        Serial.print(indexy);
-        Serial.print("|");
-        for (int index = 0; index < 10; index++) {
-            if (data[(10 * indexy) + index] == LOW) {
-                Serial.print("0 ");
-            } else {
-                Serial.print("1 ");
-            }
-        }
-        Serial.println();
-    }
-}
 
 TaskHandle_t main_task;
 TaskHandle_t job_task;
@@ -65,28 +41,31 @@ TaskHandle_t job_task;
 // Running on core 1 (default core)
 void mainTask(void* parameters) {
     for (;;) {
-        if (ioChangeDetected()) {
+        if (inputChangeDetected()) {
             flashLed(2, CRGB::Green, 50);
-            Serial.println("io change!");
-
             int8_t data[getNumberOfInputs() * MODULE_SIZE];
-            ioChanges(data);
+            inputChanges(data);
             for (uint8_t i = 0; i < getNumberOfInputs() * MODULE_SIZE; i++) {
                 // data == -1 --> current state = 0; change == 1 --> current state = 1
-                if (data[i] != 0) {
-                    PinChange change;
-                    change.pin = i;
-                    change.value = (data[i] + 1) / 2;
+                if (data[i] == 0) continue;
 
-                    xQueueSend(job_queue, &change, portMAX_DELAY);
-#ifdef DEBUG
-                    Serial.print("Change detected on pin ");
-                    Serial.print(i);
-                    Serial.print(" new value ");
-                    Serial.println(change.value);
-#endif
-                }
+                PinChange change;
+                change.pin = i;
+                change.value = (data[i] + 1) / 2;
+                xQueueSend(job_queue, &change, portMAX_DELAY);
+
+                #ifdef LOCAL_DEBUG
+                Serial.print("Change detected on pin ");
+                Serial.print(i);
+                Serial.print(" new value ");
+                Serial.println(change.value);
+                #endif
+            
             }
+        }
+        OutputChange change = outputChangeDetected();
+        if (change.received) {
+            sendOutputData(change.pin, change.value);
         }
     }
 }
@@ -95,7 +74,7 @@ void mainTask(void* parameters) {
 void jobTask(void* parameters) {
     for (;;) {
         loopSinks();
-        udpSource.loop();
+        loopSources();
 
         // Poll from queue to fetch interrupt pins
         PinChange change;
@@ -155,30 +134,26 @@ void setupIOExpanders() {
     configureIO();
     beginIO();
 
-#ifdef DEBUG
+    #ifdef LOCAL_DEBUG
     Serial.println("PCA should be interrupting");
     Serial.println("initial IO: ");
     printHighPins();
-#endif
+    #endif
 }
 
 void setup() {
-    // Set log levels
-    // setupDebug();
-    // ESP configuration
+    #ifdef LOCAL_DEBUG
+    setupDebug();
+    #endif
+    // Initialize all components
     setupESP();
-    // Leds
     setupLeds();
-    // Wifi configuration
     setupNetwork();
-    // Setup IO expanders
     setupIOExpanders();
-    // Launching webservice
     setupWebservice();
-    // Launching MQTT publisher
-    // setupMqtt();
-    // Launch UDP publisher
-    setupUdp();
+    setupSinks();
+    setupSources();
+
     // Split tasks on dual core
     setupTasks();
 }

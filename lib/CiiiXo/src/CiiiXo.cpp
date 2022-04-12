@@ -28,7 +28,7 @@ void CiiiXo::configureInput() {
 // _i2c_connection.writeI2C(PCA9698_CONFIG_PORT2, 0x00);
 // _i2c_connection.writeI2C(PCA9698_CONFIG_PORT3, 0x00);
 // _i2c_connection.writeI2C(PCA9698_CONFIG_PORT4, 0x00);
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     Serial.println("IO Configuration register values: ");
     serialPrintRegister(PCA9698_CONFIG_PORT0, 5);
 #endif
@@ -39,7 +39,7 @@ void CiiiXo::configureInput() {
 // _i2c_connection.writeI2C(PCA9698_MASK_INTERUPT_PORT2, 0x00);
 // _i2c_connection.writeI2C(PCA9698_MASK_INTERUPT_PORT3, 0x00);
 // _i2c_connection.writeI2C(PCA9698_MASK_INTERUPT_PORT4, 0x00);
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     Serial.println("Mask register values: ");
     // serialPrintRegister(PCA9698_MASK_INTERUPT_PORT0, 5);
     serialPrintRegister(PCA9698_MASK_INTERUPT_PORT0, 1);
@@ -50,7 +50,7 @@ void CiiiXo::configureInput() {
 #endif
     // Set the mode register for interupting
     _i2c_connection.writeI2C(PCA9698_MODE_REGISTER, 0x12);
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     Serial.println("Mode register values: ");
     serialPrintRegister(PCA9698_MODE_REGISTER, 1);  //Should be 0x12
 #endif
@@ -151,7 +151,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (16 > pin && pin >= 8) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT1, sizeof(data), data);
-        if ((data[0] & (1 << pin - 8)) == (1 << pin - 8)) {
+        if ((data[0] & (1 << (pin - 8))) == (1 << (pin - 8))) {
             return HIGH;
         } else {
             return LOW;
@@ -160,7 +160,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (24 > pin && pin >= 16) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT2, sizeof(data), data);
-        if ((data[0] & (1 << pin - 16)) == (1 << pin - 16)) {
+        if ((data[0] & (1 << (pin - 16))) == (1 << (pin - 16))) {
             return HIGH;
         } else {
             return LOW;
@@ -168,7 +168,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (32 > pin && pin >= 24) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT3, sizeof(data), data);
-        if ((data[0] & (1 << pin - 24)) == (1 << pin - 24)) {
+        if ((data[0] & (1 << (pin - 24))) == (1 << (pin - 24))) {
             return HIGH;
         } else {
             return LOW;
@@ -176,7 +176,7 @@ int CiiiXo::digitalRead(uint8_t pin) {
     } else if (40 > pin && pin >= 32) {
         byte data[1];
         _i2c_connection.readI2C(PCA9698_INPUT_PORT4, sizeof(data), data);
-        if ((data[0] & (1 << pin - 32)) == (1 << pin - 32)) {
+        if ((data[0] & (1 << (pin - 32))) == (1 << (pin - 32))) {
             return HIGH;
         } else {
             return LOW;
@@ -191,7 +191,7 @@ void CiiiXo::digitalReadAll(uint8_t data[40]) {
 
     _i2c_connection.readI2C(PCA9698_INPUT_PORT0_AUTO_INCREMENT, sizeof(data_in_bytes), data_in_bytes);
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     for (int index = 0; index < 5; index++) {
         Serial.println(data_in_bytes[index], BIN);
     }

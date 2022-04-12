@@ -12,9 +12,15 @@ class MqttSink: public Sink {
         void loop();
         void sendMessage(String);
         void sendInputsData(uint8_t, uint8_t);
+        void sendOutputData(uint8_t, uint8_t);
         void setServer(char*);
     protected:
-        char* mqtt_server = (char*) "192.168.1.142";      
+        char* server = (char*) "192.168.10.20";      
+        char* username = (char*) "mqtt";      
+        char* password = (char*) "mqtt";      
+        char* topic = (char*) "ciiixo/io/message";
+        char* topicTemplate = (char*) "ciiixo/io/";
+
         WiFiClient espClient;
         PubSubClient clientMQTT = PubSubClient(espClient);
 

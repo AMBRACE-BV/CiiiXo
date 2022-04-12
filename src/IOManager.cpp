@@ -1,8 +1,10 @@
+#include <Arduino.h>
+#include <Wire.h>
+
+#include "defines.h"
 #include "IOManager.h"
 
-#include <Arduino.h>
-//#include <CiiiXo.h>
-#include <Wire.h>
+
 using namespace std;
 
 uint8_t nr_inputs, nr_outputs = 0;
@@ -10,7 +12,8 @@ uint8_t nr_inputs, nr_outputs = 0;
 CiiiXo* input_modules[MAX_INPUT_MODULES];
 CiiiXo* output_modules[MAX_OUTPUT_MODULES];
 
-QueueHandle_t interrupt_queue = xQueueCreate(1, sizeof(boolean));
+QueueHandle_t interrupt_queue = xQueueCreate(80, sizeof(boolean));
+QueueHandle_t output_queue = xQueueCreate(80, sizeof(OutputChange));
 
 // Keep track of pin history - gives us the ability to detect changes
 uint8_t pin_history[MODULE_SIZE * MAX_INPUT_MODULES];
@@ -56,6 +59,13 @@ void beginIO() {
 
 /* Set pin value*/
 void setPin(uint8_t pin, uint8_t value) {
+    #ifdef LOCAL_DEBUG
+    Serial.print("setting pin ");
+    Serial.print(pin);
+    Serial.print(" to value ");
+    Serial.println(value);
+    #endif
+
     uint8_t module = pin / MODULE_SIZE;
     uint8_t module_pin = pin % MODULE_SIZE;
 
@@ -66,11 +76,27 @@ void setPin(uint8_t pin, uint8_t value) {
     }
 
     output_modules[module]->digitalWrite(module_pin, value);
+
+    // Notify change occurred
+    OutputChange change;
+    change.pin = pin;
+    change.value = value;
+    xQueueSend(output_queue, &change, 0);
 }
 
 /* Set pin value for a defined duration in ms*/
 void setPin(uint8_t pin, uint8_t value, uint32_t duration) {
-    // TODO
+    #ifdef LOCAL_DEBUG
+    Serial.print("setting pin ");
+    Serial.print(pin);
+    Serial.print(" to value ");
+    Serial.print(value);
+    Serial.print(" for ");
+    Serial.print(duration);
+    Serial.println(" ms");
+    #endif DEBUG
+    // TODO ! 
+    Serial.println("DURATION NOT IMPLEMENTED YET - ignoring message!");
 }
 
 uint8_t readPin(uint8_t pin) {
@@ -117,14 +143,21 @@ void readAll(uint8_t data[MODULE_SIZE * MAX_INPUT_MODULES], IOType io_type) {
     }
 }
 
-bool ioChangeDetected() {
+bool inputChangeDetected() {
     bool interrupted = false;
     xQueueReceive(interrupt_queue, &interrupted, 0);
     return interrupted;
 }
 
+OutputChange outputChangeDetected() {
+    OutputChange change;
+    bool received = xQueueReceive(output_queue, &change, 0);
+    change.received = received;
+    return change;
+}
+
 /* Fills data with -1, 0 or 1 ; indicating the change compared to the previous state*/
-void ioChanges(int8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
+void inputChanges(int8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
     uint8_t temp[MODULE_SIZE * MAX_INPUT_MODULES];
     readAll(temp, INPUT_MODULE);
     for (uint8_t i = 0; i < MAX_INPUT_MODULES * MODULE_SIZE; i++) {
@@ -163,4 +196,25 @@ uint8_t getNumberOfInputs() {
 }
 uint8_t getNumberOfOutputs() {
     return nr_outputs;
+}
+
+void printHighPins() {
+    uint8_t data[getNumberOfInputs() * MODULE_SIZE];
+    readAll(data);
+
+    Serial.println("Active on:");
+    Serial.println(" | 0 1 2 3 4 5 6 7 8 9");
+    Serial.println("----------------------");
+    for (int indexy = 0; indexy < getNumberOfInputs() * MODULE_SIZE / 10; indexy++) {
+        Serial.print(indexy);
+        Serial.print("|");
+        for (int index = 0; index < 10; index++) {
+            if (data[(10 * indexy) + index] == LOW) {
+                Serial.print("0 ");
+            } else {
+                Serial.print("1 ");
+            }
+        }
+        Serial.println();
+    }
 }

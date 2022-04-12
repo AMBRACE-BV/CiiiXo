@@ -1,3 +1,5 @@
+#include "defines.h"
+
 #include <Arduino.h>
 #include <ETH.h>
 #include "UdpSink.h"
@@ -10,7 +12,7 @@ void UdpSink::setup() {
     }
 
     if (udpClient.connect(ip, this->port)) {
-        Serial.println("succesfully connected udp!");
+        Serial.println("succesfully connected udp sink!");
     }
 }
 
@@ -27,7 +29,7 @@ void UdpSink::sendMessage(String message) {
     }
     
     if (this->broadcast) {
-        if (!udpClient.broadcastTo(message.c_str(), 1234)) {
+        if (!udpClient.broadcastTo(message.c_str(), this->port)) {
             Serial.println("failed to broadcast udp message");
         }
     } else {
@@ -40,7 +42,6 @@ void UdpSink::sendMessage(String message) {
 void UdpSink::sendInputsData(uint8_t pin_index, uint8_t pin_value){
     // NOTE - inverted pin value !
     String msg = "pin " + String(pin_index) + " - " + (1 - pin_value);
-    Serial.println(msg);
     this->sendMessage(msg);
 
 }
