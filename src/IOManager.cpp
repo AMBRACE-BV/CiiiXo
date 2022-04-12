@@ -12,7 +12,8 @@ uint8_t nr_inputs, nr_outputs = 0;
 CiiiXo* input_modules[MAX_INPUT_MODULES];
 CiiiXo* output_modules[MAX_OUTPUT_MODULES];
 
-QueueHandle_t interrupt_queue = xQueueCreate(1, sizeof(boolean));
+QueueHandle_t interrupt_queue = xQueueCreate(80, sizeof(boolean));
+QueueHandle_t output_queue = xQueueCreate(80, sizeof(OutputChange));
 
 // Keep track of pin history - gives us the ability to detect changes
 uint8_t pin_history[MODULE_SIZE * MAX_INPUT_MODULES];
@@ -62,7 +63,7 @@ void setPin(uint8_t pin, uint8_t value) {
     Serial.print("setting pin ");
     Serial.print(pin);
     Serial.print(" to value ");
-    Serial.print(value);
+    Serial.println(value);
     #endif
 
     uint8_t module = pin / MODULE_SIZE;
@@ -75,6 +76,12 @@ void setPin(uint8_t pin, uint8_t value) {
     }
 
     output_modules[module]->digitalWrite(module_pin, value);
+
+    // Notify change occurred
+    OutputChange change;
+    change.pin = pin;
+    change.value = value;
+    xQueueSend(output_queue, &change, 0);
 }
 
 /* Set pin value for a defined duration in ms*/
@@ -136,14 +143,21 @@ void readAll(uint8_t data[MODULE_SIZE * MAX_INPUT_MODULES], IOType io_type) {
     }
 }
 
-bool ioChangeDetected() {
+bool inputChangeDetected() {
     bool interrupted = false;
     xQueueReceive(interrupt_queue, &interrupted, 0);
     return interrupted;
 }
 
+OutputChange outputChangeDetected() {
+    OutputChange change;
+    bool received = xQueueReceive(output_queue, &change, 0);
+    change.received = received;
+    return change;
+}
+
 /* Fills data with -1, 0 or 1 ; indicating the change compared to the previous state*/
-void ioChanges(int8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
+void inputChanges(int8_t data[MAX_INPUT_MODULES * MODULE_SIZE]) {
     uint8_t temp[MODULE_SIZE * MAX_INPUT_MODULES];
     readAll(temp, INPUT_MODULE);
     for (uint8_t i = 0; i < MAX_INPUT_MODULES * MODULE_SIZE; i++) {

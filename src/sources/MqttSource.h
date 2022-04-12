@@ -13,11 +13,11 @@ class MqttSource : public Source {
         void setServer(char*);
         void setCredentials(char*, char*);
     protected:
-        char* server = (char*) "172.16.129.10";   
+        char* server = (char*) "192.168.10.20";   
         // first topic entity should be configurable through interface (multiple ciiixo boards) - wildcard denotes the pin    
         char* topic = (char*) "ciiixo/pin/+/set"; 
-        char* username = (char*) "";
-        char* password = (char*) "";
+        char* username = (char*) "mqtt";
+        char* password = (char*) "mqtt";
 
         WiFiClient espClient;
         PubSubClient clientMQTT = PubSubClient(espClient);

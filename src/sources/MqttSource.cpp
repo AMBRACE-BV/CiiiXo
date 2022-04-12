@@ -27,7 +27,7 @@ void MqttSource::loop() {
 void MqttSource::reconnect()
 {
     while (!clientMQTT.connected()) {
-        Serial.print("Attempting MQTT connection for the mqtt-source...");
+        Serial.println("Attempting MQTT connection for the mqtt-source...");
         // Attempt to connect
         if (clientMQTT.connect("Ciiixo_client_source", username, password)) {
             Serial.print("Connected! Subscribing to mqtt topic ");
@@ -35,7 +35,7 @@ void MqttSource::reconnect()
             clientMQTT.subscribe(topic);
         } else {
             Serial.print("MQTT connect failed, rc=");
-            Serial.print(clientMQTT.state());
+            Serial.println(clientMQTT.state());
             delay(2000);
         }
     }
@@ -53,7 +53,7 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
 {
     #ifdef LOCAL_DEBUG
     Serial.print("Mqtt-source received message from topic: ");
-    Serial.print(topic);
+    Serial.print(String(topic) + " " );
     for (int i = 0; i < length; i++) {
         Serial.print((char)payload[i]);
     }
@@ -70,26 +70,34 @@ void MqttSource::callback(char* topic, byte* payload, unsigned int length)
     }
 
     String pinStr = getTopicWildcard(String(topic), '/', 2);
-    String valueStr = doc["value"];
+    String stateStr = doc["state"];
     uint32_t duration = doc["duration"].as<uint32_t>();
 
     if (!pinStr.length()) {
         Serial.println("Failed to extract pin from topic");
         return;
     };
-    if (!valueStr.length()) {
-        Serial.println("Missing json key - expected value");
+    if (!stateStr.length()) {
+        Serial.println("Missing json key - expected state");
         return;
     };
 
     int pin = pinStr.toInt();
-    uint8_t value = (uint8_t) valueStr.toInt();
-
+    uint8_t state = (uint8_t) stateStr.toInt();
+    if (stateStr == "ON" || stateStr == "1") {
+        state = 1;
+    } else if (stateStr == "OFF" || stateStr == "0") {
+        state = 0;
+    } else {
+        Serial.print("Unexpected state received: ");
+        Serial.println(stateStr);
+        return;
+    }
 
     if (duration) {
-        setPin(pin, value, duration);
+        setPin(pin, state, duration);
     } else {
-        setPin(pin, value);
+        setPin(pin, state);
     }
 }
 

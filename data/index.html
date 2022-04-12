@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+
+<!--
+    https://www.w3schools.com/css/default.asp
+-->
+
+<html>
+<head>
+    <title>CiiiXo</title>
+    <!-- Load an icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  	<link type="text/css" rel="stylesheet" href="index.css" />
+    <style>
+        h1 {text-align: center;}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+    <a href="#home" onclick="openTab(event, 'home')" id="defaultOpen"><i class="fa fa-fw fa-home"></i> Home</a>
+    <a href="#sources" onclick="openTab(event, 'sources')"><i class="fa fa-fw fa-wrench"></i> Sources</a>
+    <a href="#sinks" onclick="openTab(event, 'sinks')"><i class="fa fa-fw fa-wrench"></i> Sinks</a>
+    </div> 
+    <div id="home" class="main tabcontent">
+        <h1 class="">CiiiXo Configurator</h1>
+        <p>TODO: Here comes the current state information of the CiiiXo module.</p>        
+    </div>
+
+    <!-- Sources tab -->
+    <div id="sources" class="main tabcontent">
+        <h1 class="">Sources configuration</h1>
+        <form action="/config/sources" method="POST">
+            <!-- MQTT Source configuration -->
+            <div class="configBox">
+                <div>
+                    <input type="checkbox" id="mqttSourceEnabled" name="mqtt_enabled" onclick="switchConfig(event, 'mqttSource')"> 
+                    <label for="mqttSourceEnabled">MQTT source</label>
+                </div>
+                <div class="mqttSource configForm" style="display: none;">
+                    <label for="mqttBroker">Broker</label>
+                    <input type="text" id="mqttBroker" name="mqtt_broker" placeholder="Broker ip.."><br>
+                    <label for="mqttBroker">Username</label>
+                    <input type="text" id="mqttUsername" name="mqtt_username" placeholder="MQTT username.."><br>
+                    <label for="mqttBroker">Password</label>
+                    <input type="text" id="mqttPassword" name="mqtt_password" placeholder="MQTT password..">
+                </div> 
+            </div>
+            <!-- UDP Source configuration -->
+            <div class="configBox">
+                <div>
+                    <input type="checkbox" id="udpSourceEnabled" name="udp_enabled" onclick="switchConfig(event, 'udpSource')"> 
+                    <label for="udpSourceEnabled">UDP source</label>
+                </div>
+                <div class="udpSource configForm" style="display: none;">
+                    <label for="udpPort">Port</label>
+                    <input type="text" id="udpPort" name="udp_port" placeholder="UDP port.."><br>
+                </div> 
+            </div>
+            <input type="submit" value="Submit source config">
+        </form>
+    </div>
+
+    <!-- Sinks tab -->
+    <div id="sinks" class="main tabcontent">
+        <h1 class="">Sinks configuration</h1>
+        <form action="/config/sinks" method="POST">
+            <!-- MQTT sink configuration -->
+            <div class="configBox">
+                <div>
+                    <input type="checkbox" id="mqttSinkEnabled" name="mqtt_enabled" onclick="switchConfig(event, 'mqttSink')"> 
+                    <label for="mqttSinkEnabled">MQTT Sink</label>
+                </div>
+                <div class="mqttSink configForm" style="display: none;">
+                    <label for="mqttBroker">Broker</label>
+                    <input type="text" id="mqttBroker" name="mqtt_broker" placeholder="Broker ip.."><br>
+                    <label for="mqttBroker">Username</label>
+                    <input type="text" id="mqttUsername" name="mqtt_username" placeholder="MQTT username.."><br>
+                    <label for="mqttBroker">Password</label>
+                    <input type="text" id="mqttPassword" name="mqtt_password" placeholder="MQTT password..">
+                </div> 
+            </div>
+            <!-- UDP Sink configuration -->
+            <div class="configBox">
+                <div>
+                    <input type="checkbox" id="udpSinkEnabled" name="udp_enabled" onclick="switchConfig(event, 'udpSink')"> 
+                    <label for="udpSinkEnabled">UDP sink</label>
+                </div>
+                <div class="udpSink configForm" style="display: none;">
+                    <label for="udpPort">Port</label>
+                    <input type="text" id="udpPort" name="udp_port" placeholder="UDP port.."><br>
+                </div> 
+            </div>
+            <input type="submit" value="Submit sink config">
+        </form>
+    </div>
+
+
+    <script src="index.js"></script>
+</body>
+</html> 
+
+
+

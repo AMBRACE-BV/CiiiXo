@@ -37,7 +37,11 @@ void sendMessage(String message) {
     if (udp_sink.enabled) udp_sink.sendMessage(message);
 }
 void sendInputsData(uint8_t pin_index, uint8_t pin_value){
-        if (mqtt_sink.enabled) mqtt_sink.sendInputsData(pin_index, pin_value);
+    if (mqtt_sink.enabled) mqtt_sink.sendInputsData(pin_index, pin_value);
     if (udp_sink.enabled) udp_sink.sendInputsData(pin_index, pin_value);
 }
 
+void sendOutputData(uint8_t pin_index, uint8_t pin_value){    
+    if (mqtt_sink.enabled) mqtt_sink.sendOutputData(pin_index, pin_value);
+    if (udp_sink.enabled) udp_sink.sendOutputData(pin_index, pin_value);
+}

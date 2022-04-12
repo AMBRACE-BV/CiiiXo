@@ -41,10 +41,10 @@ TaskHandle_t job_task;
 // Running on core 1 (default core)
 void mainTask(void* parameters) {
     for (;;) {
-        if (ioChangeDetected()) {
+        if (inputChangeDetected()) {
             flashLed(2, CRGB::Green, 50);
             int8_t data[getNumberOfInputs() * MODULE_SIZE];
-            ioChanges(data);
+            inputChanges(data);
             for (uint8_t i = 0; i < getNumberOfInputs() * MODULE_SIZE; i++) {
                 // data == -1 --> current state = 0; change == 1 --> current state = 1
                 if (data[i] == 0) continue;
@@ -62,6 +62,10 @@ void mainTask(void* parameters) {
                 #endif
             
             }
+        }
+        OutputChange change = outputChangeDetected();
+        if (change.received) {
+            sendOutputData(change.pin, change.value);
         }
     }
 }

@@ -7,7 +7,7 @@
 CRGB leds[NUM_LEDS];
 
 
-void flashLed(int index, const struct CRGB& color, int delay_ms = 500)
+void flashLed(int index, const struct CRGB& color, int delay_ms = 10)
 {
     leds[index] = color;
     FastLED.show();

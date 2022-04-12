@@ -12,11 +12,12 @@ class MqttSink: public Sink {
         void loop();
         void sendMessage(String);
         void sendInputsData(uint8_t, uint8_t);
+        void sendOutputData(uint8_t, uint8_t);
         void setServer(char*);
     protected:
-        char* server = (char*) "172.16.129.10";      
-        char* username = (char*) "";      
-        char* password = (char*) "";      
+        char* server = (char*) "192.168.10.20";      
+        char* username = (char*) "mqtt";      
+        char* password = (char*) "mqtt";      
         char* topic = (char*) "ciiixo/io/message";
         char* topicTemplate = (char*) "ciiixo/io/";
 

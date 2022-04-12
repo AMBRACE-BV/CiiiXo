@@ -12,7 +12,6 @@ void MqttSink::setup()
 {
     Serial.print("Init MQTT sink to ");
     Serial.println(server);
-
     clientMQTT.setServer(server, 1883);
     clientMQTT.setCallback(callback);
 }
@@ -20,6 +19,7 @@ void MqttSink::setup()
 void MqttSink::loop() {
     if (!clientMQTT.connected()) {
         Serial.println("MQTT sink not connected! reconnecting...");
+        
         reconnect();
     }
     clientMQTT.loop();
@@ -37,13 +37,39 @@ void  MqttSink::sendMessage(String message) {
 void MqttSink::sendInputsData(uint8_t pin_index, uint8_t pin_value)
 {
     json_doc.clear();
-    json_doc["idx"] = String(pin_index);
-    json_doc["value"] = String(pin_value);
+    if (pin_value == 0) {
+        json_doc["state"] = "OFF";
+    } else {
+        json_doc["state"] = "ON";
+    }
 
     char buffer[4096];
     serializeJson(json_doc, buffer);
 
-    String topic = topicTemplate + String(pin_index);
+    String topic = topicTemplate + String("input/") + String(pin_index);
+
+    if (!clientMQTT.publish(topic.c_str(), buffer, false)) {
+        Serial.println("Error sending message");
+    }
+}
+
+void MqttSink::sendOutputData(uint8_t pin_index, uint8_t pin_value)
+{
+    json_doc.clear();
+    if (pin_value == 0) {
+        json_doc["state"] = "OFF";
+    } else {
+        json_doc["state"] = "ON";
+    }
+
+    char buffer[4096];
+    serializeJson(json_doc, buffer);
+    String topic = topicTemplate + String("output/") + String(pin_index);
+    
+    #ifdef LOCAL_DEBUG
+    Serial.print("Sending output data on ");
+    Serial.println(topic);
+    #endif
 
     if (!clientMQTT.publish(topic.c_str(), buffer, false)) {
         Serial.println("Error sending message");
@@ -53,7 +79,7 @@ void MqttSink::sendInputsData(uint8_t pin_index, uint8_t pin_value)
 void MqttSink::reconnect()
 {
     while (!clientMQTT.connected()) {
-        Serial.print("Attempting MQTT connection...");
+        Serial.println("Attempting MQTT connection...");
         // Attempt to connect
         if (clientMQTT.connect("Ciiixo_client_sink", username, password)) {
             Serial.println("connected");
